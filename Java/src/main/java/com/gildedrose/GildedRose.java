@@ -12,9 +12,8 @@ class GildedRose {
 	}
 
 	public void updateQuality() {
-		List<Item> itemsWithoutSulfuras = Arrays.asList(items).parallelStream().filter(
-				item -> (!item.name.equals("Sulfuras, Hand of Ragnaros")) && !(item.quality < 0 || item.quality > 50))
-				.collect(Collectors.toList());
+		List<Item> itemsWithoutSulfuras = Arrays.asList(items).parallelStream()
+				.filter(item -> (!item.name.equals("Sulfuras, Hand of Ragnaros"))).collect(Collectors.toList());
 		itemsWithoutSulfuras.parallelStream().forEach(item -> updateItemQuality(item));
 		adjustQuality(itemsWithoutSulfuras);
 	}
@@ -30,33 +29,27 @@ class GildedRose {
 	}
 
 	private int updateAlterBy(Item item, int alterBy) {
-		switch(item.name){
-			case "Conjured Mana Cake" :
-				alterBy = updateAlterByValue(alterBy, -2);
-				break;
-			case "Backstage passes to a TAFKAL80ETC concert" :
-				if (item.sellIn < 6)
-					alterBy = updateAlterByValue(alterBy, +3);
-				else if (item.sellIn < 11)
-					alterBy = updateAlterByValue(alterBy, +2);
-				else
-					alterBy = updateAlterByValue(alterBy, +1);
-				break;
-			case "Aged Brie" :
-				alterBy = updateAlterByValue(alterBy, +1);
-				break;
-			default :
-				alterBy = updateAlterByValue(alterBy, -1);
-				break;
-		}		
+		int value;
+		switch (item.name) {
+		case "Backstage passes to a TAFKAL80ETC concert":
+			value = item.sellIn < 6 ? 3 : item.sellIn < 11 ? 2 : 1;
+			break;
+		case "Aged Brie":
+			value = 1;
+			break;
+		default:
+			value = item.name.equals("Conjured Mana Cake") ? -2 : -1;
+			break;
+		}
+		alterBy = updateAlterByValue(alterBy, value);
 		return alterBy;
 	}
 
 	private int updateAlterByValue(int alterBy, int value) {
 		alterBy += value;
-		return alterBy;		
+		return alterBy;
 	}
-	
+
 	private int updateAlterByIfExpired(Item item, int alterBy) {
 		alterBy = !item.name.equals("Backstage passes to a TAFKAL80ETC concert") ? alterBy *= 2 : -item.quality;
 		return alterBy;
